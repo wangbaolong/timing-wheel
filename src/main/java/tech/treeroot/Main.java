@@ -1,12 +1,13 @@
 package tech.treeroot;
 
+import tech.treeroot.timer.Timer;
 import tech.treeroot.timer.impl.TimerImpl;
 import tech.treeroot.timer.TimerTask;
 
 public class Main {
 
     public static void main(String[] args) {
-        TimerImpl timer = new TimerImpl(1000, 10, 5000);
+        Timer timer = new TimerImpl(1000, 10, 5000);
         timer.add(new DemoTimerTask(2000));
         timer.add(new DemoTimerTask(2000));
         timer.add(new DemoTimerTask(5000));
