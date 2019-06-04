@@ -17,18 +17,21 @@ public class TimerTaskList implements Delayed {
         this.taskCounter = taskCounter;
     }
 
-    public synchronized void add(TimerTaskEntry timerTaskEntry) {
+    public void add(TimerTaskEntry timerTaskEntry) {
         boolean done = false;
         while (!done) {
-            if (timerTaskEntry.list == null) {
-                TimerTaskEntry tail = root.prev;
-                timerTaskEntry.next = root;
-                timerTaskEntry.prev = tail;
-                timerTaskEntry.list = this;
-                tail.next = timerTaskEntry;
-                root.prev = timerTaskEntry;
-                taskCounter.incrementAndGet();
-                done = true;
+            timerTaskEntry.remove();
+            synchronized(this) {
+                if (timerTaskEntry.list == null) {
+                    TimerTaskEntry tail = root.prev;
+                    timerTaskEntry.next = root;
+                    timerTaskEntry.prev = tail;
+                    timerTaskEntry.list = this;
+                    tail.next = timerTaskEntry;
+                    root.prev = timerTaskEntry;
+                    taskCounter.incrementAndGet();
+                    done = true;
+                }
             }
         }
     }
@@ -42,14 +45,16 @@ public class TimerTaskList implements Delayed {
         return expiration.get();
     }
 
-    public synchronized void remove(TimerTaskEntry timerTaskEntry) {
-        if (timerTaskEntry.list.equals(this)) {
-            timerTaskEntry.next.prev = timerTaskEntry.prev;
-            timerTaskEntry.prev.next = timerTaskEntry.next;
-            timerTaskEntry.next = null;
-            timerTaskEntry.prev = null;
-            timerTaskEntry.list = null;
-            taskCounter.decrementAndGet();
+    public void remove(TimerTaskEntry timerTaskEntry) {
+        synchronized(this) {
+            if (timerTaskEntry.list.equals(this)) {
+                timerTaskEntry.next.prev = timerTaskEntry.prev;
+                timerTaskEntry.prev.next = timerTaskEntry.next;
+                timerTaskEntry.next = null;
+                timerTaskEntry.prev = null;
+                timerTaskEntry.list = null;
+                taskCounter.decrementAndGet();
+            }
         }
     }
 

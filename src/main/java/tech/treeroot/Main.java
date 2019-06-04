@@ -16,6 +16,11 @@ public class Main {
         timer.add(new DemoTimerTask(15000));
         timer.add(new DemoTimerTask(30000));
         timer.add(new DemoTimerTask(30000));
+        TimerTask timerTask = new DemoTimerTask(20000);
+        timer.add(timerTask);
+        timerTask.cancel();
+
+
     }
 
     private static class DemoTimerTask extends TimerTask {
